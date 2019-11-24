@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.UserDao">
+    <resultMap id="userMap" type="com.example.demo.entity.UserEntity">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="pwd" property="pwd"/>
+        <result column="username" property="username"/>
+    </resultMap>
+    <resultMap id="OrderMap" type="com.example.demo.entity.OrderEntity">
+        <result column="u.name" property="userName"/>
+        <result column="u.id" property="userId"/>
+        <result column="o.id" property="orderId"/>
+        <result column="o.name" property="orderName"/>
+    </resultMap>
+    <select id="queryAllUser" resultType="com.example.demo.entity.UserEntity">
+        select id, pwd, username, name
+        from user
+    </select>
+    <select id="queryUserById" resultMap="userMap" parameterType="integer">
+        select id, pwd, username, name
+        from user
+        where id = #{id}
+    </select>
+    <insert id="insertUser" parameterType="com.example.demo.entity.UserEntity">
+        insert into user (name, pwd, username)
+        values (#{name}, #{password}, #{username})
+    </insert>
+    <delete id="deleteUserById" parameterType="integer">
+        delete
+        from user
+        where id = #{id}
+    </delete>
+    <update id="updateUserById" parameterType="com.example.demo.entity.UserEntity">
+        update user
+        set name     = #{name},
+            pwd      = #{password},
+            username = #{username}
+        where id = #{id}
+    </update>
+
+    <insert id="insertAllUser" parameterType="com.example.demo.entity.UserEntity">
+        insert into user(name,pwd,username)
+        values
+        <foreach collection="userEntity" item="item" separator=",">
+            (#{item.name},#{item.pwd},#{item.username})
+        </foreach>
+    </insert>
+
+    <insert id="insertAllUser2" parameterType="com.example.demo.entity.UserEntity">
+        insert into user (name, pwd, username)
+        values
+        <foreach collection="userEntity" item="item" separator=",">
+            (#{item.name},#{item.pwd},#{item.username})
+        </foreach>
+    </insert>
+    <select id="login" resultType="integer">
+        select * from user
+        <where>
+            name = #{name} and pwd=#{pwd}
+        </where>
+    </select>
+    <select id="querySameName" resultType="com.example.demo.entity.UserEntity">
+        select * from user
+        <where>
+            role =(
+            select distinct role from user where name = #{name} LIMIT 1
+            ) and name = #{name}
+        </where>
+    </select>
+    <select id="queryOrder" resultMap="OrderMap">
+        select u.id, u.name, o.user_id, o.order_name
+        from user u
+                 LEFT JOIN `order` o on u.id = o.id
+        where u.username = #{name}
+
+    </select>
+</mapper>
